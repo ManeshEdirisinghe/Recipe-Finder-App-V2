@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { ChefHat, Utensils, Search as SearchIcon } from 'lucide-react';
+
 import { SearchBar } from '@/components/SearchBar';
 import { RecipeCard } from '@/components/RecipeCard';
 import { RecipeModal } from '@/components/RecipeModal';
 import { EmptyState } from '@/components/EmptyState';
-import { searchByIngredient } from '@/lib/api';
+import { searchByIngredient, searchByName } from '@/lib/api';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Recipe } from '@/types/recipe';
 
@@ -17,11 +18,27 @@ export default function Index() {
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const { isFavorite, toggleFavorite, favorites } = useFavorites();
 
-  const handleSearch = async (query: string) => {
+
+  // Accept filters from SearchBar
+  const handleSearch = async (query: string, filters?: any) => {
     setLoading(true);
     setSearched(true);
     try {
-      const results = await searchByIngredient(query);
+      let results: Recipe[] = await searchByIngredient(query);
+      // Optionally, fetch by name if no results
+      if (results.length === 0) {
+        results = await searchByName(query);
+      }
+      // Filter by category, area, etc. (client-side for now)
+      if (filters) {
+        if (filters.category) {
+          results = results.filter(r => r.strCategory === filters.category);
+        }
+        if (filters.area) {
+          results = results.filter(r => r.strArea && r.strArea.toLowerCase().includes(filters.area.toLowerCase()));
+        }
+        // Cook time and diet are not available in API, so this is a placeholder for future extension
+      }
       setRecipes(results);
     } catch (error) {
       console.error('Search failed:', error);
