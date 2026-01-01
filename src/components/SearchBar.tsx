@@ -1,10 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
-
-import { useEffect, useState } from 'react';
 import { getCategories } from '@/lib/api';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
