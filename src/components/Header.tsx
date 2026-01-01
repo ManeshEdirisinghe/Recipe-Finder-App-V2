@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ChefHat, Heart, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from './ThemeToggle';
 
 interface HeaderProps {
   favoritesCount: number;
@@ -52,6 +53,8 @@ export function Header({ favoritesCount }: HeaderProps) {
               </span>
             )}
           </Link>
+
+          <ThemeToggle />
         </nav>
       </div>
     </header>
