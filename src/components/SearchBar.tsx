@@ -54,12 +54,12 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
             className="pl-12 h-14 text-base rounded-xl border-2 border-border bg-card shadow-soft focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           />
         </div>
-        <Select value={category} onValueChange={setCategory}>
+        <Select value={category || "all"} onValueChange={(val) => setCategory(val === "all" ? "" : val)}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             {categories.map((cat) => (
               <SelectItem key={cat} value={cat}>{cat}</SelectItem>
             ))}
@@ -72,24 +72,24 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
           onChange={(e) => setArea(e.target.value)}
           className="w-32"
         />
-        <Select value={cookTime} onValueChange={setCookTime}>
+        <Select value={cookTime || "any"} onValueChange={(val) => setCookTime(val === "any" ? "" : val)}>
           <SelectTrigger className="w-32">
             <SelectValue placeholder="Cook Time" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Any</SelectItem>
+            <SelectItem value="any">Any</SelectItem>
             <SelectItem value="15">≤ 15 min</SelectItem>
             <SelectItem value="30">≤ 30 min</SelectItem>
             <SelectItem value="60">≤ 1 hour</SelectItem>
             <SelectItem value="120">≤ 2 hours</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={diet} onValueChange={setDiet}>
+        <Select value={diet || "any-diet"} onValueChange={(val) => setDiet(val === "any-diet" ? "" : val)}>
           <SelectTrigger className="w-32">
             <SelectValue placeholder="Diet" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Any</SelectItem>
+            <SelectItem value="any-diet">Any</SelectItem>
             <SelectItem value="vegetarian">Vegetarian</SelectItem>
             <SelectItem value="vegan">Vegan</SelectItem>
             <SelectItem value="gluten-free">Gluten-Free</SelectItem>
