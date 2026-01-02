@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ChefHat, Heart, Search } from 'lucide-react';
+import { Heart, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -12,16 +12,7 @@ export function Header({ favoritesCount }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/80 backdrop-blur-lg">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="p-2 rounded-xl gradient-hero shadow-warm group-hover:shadow-elevated transition-shadow">
-            <ChefHat className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-xl font-bold text-foreground">
-            Recipe<span className="text-gradient">Finder</span>
-          </span>
-        </Link>
-
+      <div className="container mx-auto px-4 h-16 flex items-center justify-end">
         <nav className="flex items-center gap-1">
           <Link
             to="/"
