@@ -1,13 +1,7 @@
-
 import { Link, useLocation } from 'react-router-dom';
-import { ChefHat, Heart, Search, Moon, Sun } from 'lucide-react';
+import { ChefHat, Heart, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
-<<<<<<< HEAD
-import { Switch } from './ui/switch';
-import { useDarkMode } from '@/hooks/useDarkMode';
-=======
 import { ThemeToggle } from './ThemeToggle';
->>>>>>> ff35e46f7d6b904635510940e1c2a271683f6080
 
 interface HeaderProps {
   favoritesCount: number;
@@ -15,8 +9,6 @@ interface HeaderProps {
 
 export function Header({ favoritesCount }: HeaderProps) {
   const location = useLocation();
-
-  const [isDark, setIsDark] = useDarkMode();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/80 backdrop-blur-lg">
@@ -62,16 +54,7 @@ export function Header({ favoritesCount }: HeaderProps) {
             )}
           </Link>
 
-<<<<<<< HEAD
-          {/* Dark mode toggle */}
-          <div className="flex items-center gap-2 ml-4">
-            <Sun className={cn("h-4 w-4", !isDark ? "text-yellow-400" : "text-muted-foreground")}/>
-            <Switch checked={isDark} onCheckedChange={setIsDark} aria-label="Toggle dark mode" />
-            <Moon className={cn("h-4 w-4", isDark ? "text-blue-400" : "text-muted-foreground")}/>
-          </div>
-=======
           <ThemeToggle />
->>>>>>> ff35e46f7d6b904635510940e1c2a271683f6080
         </nav>
       </div>
     </header>
