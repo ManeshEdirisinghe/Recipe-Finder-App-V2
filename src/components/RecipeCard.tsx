@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react';
+import { Heart, Clock, ChefHat } from 'lucide-react';
 import { Recipe } from '@/types/recipe';
 import { cn } from '@/lib/utils';
 
@@ -26,59 +26,67 @@ export function RecipeCard({
     <article
       onClick={onClick}
       className={cn(
-        "group relative bg-card rounded-2xl overflow-hidden shadow-card cursor-pointer",
-        "transition-all duration-300 hover:shadow-elevated hover:-translate-y-1",
+        "group relative bg-card rounded-3xl overflow-hidden cursor-pointer",
+        "border border-border/50 shadow-lg",
+        "transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2",
         "animate-fade-up"
       )}
       style={{ animationDelay: `${index * 50}ms` }}
     >
+      {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={recipe.strMealThumb}
           alt={recipe.strMeal}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
         
+        {/* Favorite Button */}
         <button
           onClick={handleFavoriteClick}
           className={cn(
-            "absolute top-3 right-3 p-2.5 rounded-full transition-all duration-200",
-            "backdrop-blur-sm shadow-soft",
+            "absolute top-4 right-4 p-3 rounded-full transition-all duration-300",
+            "backdrop-blur-md shadow-lg",
             isFavorite
-              ? "bg-primary text-primary-foreground scale-110"
-              : "bg-card/90 text-muted-foreground hover:bg-card hover:text-primary hover:scale-110"
+              ? "bg-gradient-to-r from-primary to-accent text-white scale-110"
+              : "bg-white/90 text-gray-600 hover:bg-white hover:text-primary hover:scale-110"
           )}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Heart
-            className={cn("h-5 w-5 transition-all", isFavorite && "fill-current")}
+            className={cn("h-5 w-5 transition-transform", isFavorite && "fill-current animate-pulse")}
           />
         </button>
-      </div>
 
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-lg font-semibold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+        {/* Quick Info Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h3 className="font-display text-xl font-bold text-white leading-tight line-clamp-2 drop-shadow-lg">
             {recipe.strMeal}
           </h3>
         </div>
-        
-        {(recipe.strCategory || recipe.strArea) && (
-          <div className="flex items-center gap-2 mt-3">
-            {recipe.strCategory && (
-              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-secondary text-secondary-foreground">
-                {recipe.strCategory}
-              </span>
-            )}
-            {recipe.strArea && (
-              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-accent/30 text-accent-foreground">
-                {recipe.strArea}
-              </span>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* Content */}
+      <div className="p-5 bg-gradient-to-b from-card to-card/50">
+        <div className="flex items-center gap-2 flex-wrap">
+          {recipe.strCategory && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 text-primary border border-primary/20">
+              <ChefHat className="h-3 w-3" />
+              {recipe.strCategory}
+            </span>
+          )}
+          {recipe.strArea && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-accent/10 to-accent/5 text-accent-foreground border border-accent/20">
+              🌍 {recipe.strArea}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Hover Indicator */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
     </article>
   );
 }
