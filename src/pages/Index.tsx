@@ -5,7 +5,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { RecipeCard } from '@/components/RecipeCard';
 import { RecipeModal } from '@/components/RecipeModal';
 import { EmptyState } from '@/components/EmptyState';
-import { searchByIngredient, searchByName, getRecipeById } from '@/lib/api';
+import { searchByIngredient, searchByName } from '@/lib/api';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Recipe } from '@/types/recipe';
 
@@ -37,15 +37,8 @@ export default function Index() {
         results = await searchByName(query);
       }
       // Filter by category if specified
-      // The filter API only returns basic info (id, name, thumb), so we need to fetch full details
-      if (filters?.category && results.length > 0) {
-        // Fetch full recipe details to get category info
-        const fullRecipes = await Promise.all(
-          results.map(r => getRecipeById(r.idMeal))
-        );
-        results = fullRecipes.filter(
-          (r): r is Recipe => r !== null && r.strCategory === filters.category
-        );
+      if (filters?.category) {
+        results = results.filter(r => r.strCategory === filters.category);
       }
       setRecipes(results);
     } catch (error) {
