@@ -1,17 +1,33 @@
-import React from 'react';
+import { cn } from "@/lib/utils";
 
-const RecipeCardSkeleton: React.FC = () => {
+export function RecipeCardSkeleton() {
   return (
-    <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg shadow-md p-4 flex flex-col gap-4">
-      <div className="h-40 w-full bg-gray-300 dark:bg-gray-600 rounded-md" />
-      <div className="h-6 w-3/4 bg-gray-300 dark:bg-gray-600 rounded" />
-      <div className="h-4 w-1/2 bg-gray-300 dark:bg-gray-600 rounded" />
-      <div className="flex gap-2 mt-2">
-        <div className="h-8 w-20 bg-gray-300 dark:bg-gray-600 rounded" />
-        <div className="h-8 w-20 bg-gray-300 dark:bg-gray-600 rounded" />
+    <div className={cn(
+      "bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg",
+      // මුළු කාඩ් එකටම Pulse animation එක ලබා දෙයි
+      "animate-pulse" 
+    )}>
+      {/* Image Skeleton */}
+      <div className="aspect-[4/3] bg-muted/60 relative">
+        {/* Favorite Button Placeholder */}
+        <div className="absolute top-4 right-4 h-10 w-10 rounded-full bg-muted-foreground/20" />
+      </div>
+
+      {/* Content Skeleton */}
+      <div className="p-5">
+        {/* Badges Placeholder (Category & Area) */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="h-6 w-20 rounded-full bg-muted/80" />
+          <div className="h-6 w-16 rounded-full bg-muted/80" />
+        </div>
+
+        {/* Title Placeholder */}
+        <div className="space-y-2">
+          <div className="h-7 w-3/4 rounded-md bg-muted/80" />
+          {/* දිග වැඩි නම් දෙවැනි පේළියක් සඳහා */}
+          <div className="h-7 w-1/2 rounded-md bg-muted/60" />
+        </div>
       </div>
     </div>
   );
-};
-
-export default RecipeCardSkeleton;
+}
