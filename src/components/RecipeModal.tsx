@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { X, Heart, Clock, Users, ExternalLink, Check, Circle } from 'lucide-react'; // Check සහ Circle අලුතින් එකතු කළා
+import { useEffect, useState, useCallback } from 'react';
+import { X, Heart, Clock, Users, ExternalLink, Check, Minus, Plus } from 'lucide-react';
 import { Recipe, getIngredients } from '@/types/recipe';
 import { getRecipeById } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,31 @@ interface RecipeModalProps {
   onToggleFavorite: (recipe: Recipe) => void;
 }
 
+// භාග සංඛ්‍යා (Fractions) දශම බවට හැරවීමට උදව් වන helper function එකක්
+const parseFraction = (str: string): number => {
+  if (str.includes('/')) {
+    const [num, den] = str.split('/').map(Number);
+    return num / den;
+  }
+  return parseFloat(str);
+};
+
+// දශම සංඛ්‍යා නැවත ලස්සනට පෙන්වීමට (උදා: 0.5 -> 1/2)
+const formatNumber = (num: number): string => {
+  if (Number.isInteger(num)) return num.toString();
+  
+  // සුලභ භාග සංඛ්‍යා සඳහා
+  const decimal = num % 1;
+  const integer = Math.floor(num);
+  
+  if (Math.abs(decimal - 0.5) < 0.01) return integer ? `${integer} ½` : '½';
+  if (Math.abs(decimal - 0.25) < 0.01) return integer ? `${integer} ¼` : '¼';
+  if (Math.abs(decimal - 0.75) < 0.01) return integer ? `${integer} ¾` : '¾';
+  if (Math.abs(decimal - 0.33) < 0.01) return integer ? `${integer} ⅓` : '⅓';
+  
+  return num.toFixed(1).replace('.0', '');
+};
+
 export function RecipeModal({
   recipeId,
   onClose,
@@ -20,17 +45,26 @@ export function RecipeModal({
 }: RecipeModalProps) {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(false);
-  
-  // ටික් කරන ලද අමුද්‍රව්‍ය (Ingredients) මතක තබා ගැනීමට
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
+  
+  // Default servings ප්‍රමාණය 4 ලෙස ගනිමු
+  const [defaultServings, setDefaultServings] = useState(4);
+  const [currentServings, setCurrentServings] = useState(4);
 
   useEffect(() => {
     if (recipeId) {
       setLoading(true);
-      // අලුත් Recipe එකක් ලෝඩ් වන විට ටික්ස් reset කරන්න
       setCheckedIngredients(new Set());
+      setCurrentServings(4); // Reset servings
+      
       getRecipeById(recipeId)
-        .then(setRecipe)
+        .then((data) => {
+          setRecipe(data);
+          // API එකේ servings දීලා තියෙනවා නම් එය ගන්න, නැත්නම් 4 ගන්න
+          // (API එක සමහර විට "Yield: 2" වගේ text එවන නිසා අපි 4 යොදාගනිමු ආරක්ෂාවට)
+          setDefaultServings(4);
+          setCurrentServings(4);
+        })
         .finally(() => setLoading(false));
     } else {
       setRecipe(null);
@@ -45,7 +79,6 @@ export function RecipeModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
-  // අමුද්‍රව්‍ය ටික් කිරීම සහ ඉවත් කිරීම සඳහා ෆන්ෂන් එක
   const toggleIngredient = (index: number) => {
     const next = new Set(checkedIngredients);
     if (next.has(index)) {
@@ -55,6 +88,25 @@ export function RecipeModal({
     }
     setCheckedIngredients(next);
   };
+
+  const updateServings = (change: number) => {
+    const newServings = currentServings + change;
+    if (newServings >= 1 && newServings <= 20) {
+      setCurrentServings(newServings);
+    }
+  };
+
+  // අමුද්‍රව්‍ය ප්‍රමාණය ගණනය කරන Logic එක
+  const getScaledMeasure = useCallback((measure: string) => {
+    if (currentServings === defaultServings) return measure;
+
+    // ඉලක්කම් හෝ භාග සංඛ්‍යා සොයා ගැනීමට Regex (උදා: 1/2, 1.5, 200)
+    return measure.replace(/(\d+\/\d+|\d+(\.\d+)?)/g, (match) => {
+      const value = parseFraction(match);
+      const scaled = (value / defaultServings) * currentServings;
+      return formatNumber(scaled);
+    });
+  }, [currentServings, defaultServings]);
 
   if (!recipeId) return null;
 
@@ -109,28 +161,46 @@ export function RecipeModal({
             </div>
 
             <div className="p-6 md:p-8 overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4 text-muted-foreground">
-                  <div className="flex items-center gap-1.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-4 text-muted-foreground bg-secondary/30 p-2 rounded-xl border border-border/50">
+                  <div className="flex items-center gap-1.5 px-2">
                     <Clock className="h-4 w-4" />
-                    <span className="text-sm">30-45 min</span>
+                    <span className="text-sm font-medium">30-45 min</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  
+                  <div className="w-px h-4 bg-border" />
+
+                  {/* Portion Calculator Controls */}
+                  <div className="flex items-center gap-3 px-2">
                     <Users className="h-4 w-4" />
-                    <span className="text-sm">4 servings</span>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => updateServings(-1)}
+                        className="p-1 hover:bg-background rounded-md transition-colors disabled:opacity-50"
+                        disabled={currentServings <= 1}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </button>
+                      <span className="text-sm font-bold w-16 text-center text-foreground">
+                        {currentServings} servings
+                      </span>
+                      <button 
+                        onClick={() => updateServings(1)}
+                        className="p-1 hover:bg-background rounded-md transition-colors disabled:opacity-50"
+                        disabled={currentServings >= 20}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                   {recipe.strYoutube && (
                     <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={recipe.strYoutube}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <a href={recipe.strYoutube} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="h-4 w-4 mr-1.5" />
-                        Watch Video
+                        Video
                       </a>
                     </Button>
                   )}
@@ -156,6 +226,9 @@ export function RecipeModal({
                   <ul className="space-y-3">
                     {ingredients.map((ing, idx) => {
                       const isChecked = checkedIngredients.has(idx);
+                      // මෙතනදී අපි ප්‍රමාණය scale කරනවා
+                      const scaledMeasure = getScaledMeasure(ing.measure);
+
                       return (
                         <li
                           key={idx}
@@ -180,8 +253,8 @@ export function RecipeModal({
                             "transition-all duration-200",
                             isChecked ? "text-muted-foreground line-through opacity-70" : "text-foreground"
                           )}>
-                            <span className={cn("font-medium", isChecked ? "text-muted-foreground" : "text-foreground")}>
-                              {ing.measure}
+                            <span className={cn("font-bold", isChecked ? "text-muted-foreground" : "text-primary")}>
+                              {scaledMeasure}
                             </span>{' '}
                             {ing.name}
                           </span>
